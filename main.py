@@ -31,11 +31,12 @@ def show_map(gdf,building):
 
 
 def generate_random_gps(city):
-    polygon = city.envelope[0]
+    square = city.envelope[0]
+    geometry = city.geometry[0]
     while True:
-        rand_x = random.uniform(polygon.bounds[0], polygon.bounds[2])
-        rand_y = random.uniform(polygon.bounds[1], polygon.bounds[3])
-        if polygon.contains(Point(rand_x, rand_y)):
+        rand_x = random.uniform(square.bounds[0], square.bounds[2])
+        rand_y = random.uniform(square.bounds[1], square.bounds[3])
+        if geometry.contains(Point(rand_x, rand_y)):
             return Point(rand_x, rand_y)
 
 
