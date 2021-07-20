@@ -57,9 +57,9 @@ def buffer_around_point(mmap, gdf, point):
     buffer = Point(0, 0).buffer(1000)  # distance in metres
     buffer = Polygon(transform(project, buffer).exterior.coords[:])
 
-    myShapeTmp = gdf[gdf.geometry.within(buffer)]
+    buildings_in_area = gdf[gdf.geometry.within(buffer)] #TODO per zorzi: salvare su CSV questo dataframe
     mark_area_around_bomb(point, mmap)
-    geo_j = folium.GeoJson(data=myShapeTmp, style_function=lambda x: {'fillColor': 'black'})
+    geo_j = folium.GeoJson(data=buildings_in_area, style_function=lambda x: {'fillColor': 'black'})
     geo_j.add_to(mmap)
     mmap.save('map.html')
 
