@@ -40,10 +40,17 @@ def generate_random_gps(city):
             return Point(rand_x, rand_y)
 
 
-def buffer_around_point(gdf):
-    buffer = gdf.buffer(0.1, cap_style=3)
+def buffer_around_point(mmap, gdf, point):
+    buffer = point.buffer(0.01, resolution=8, cap_style=1)
     gdf['geometry'] = buffer
-    # show_map(gdf)
+
+    mark_area_around_bomb(point, mmap)
+
+    sim_geo = gpd.GeoSeries(gdf['geometry']).simplify(tolerance=0.0001)
+    geo_j = sim_geo.to_json()
+    geo_j = folium.GeoJson(data=geo_j, style_function=lambda x: {'fillColor': 'orange'})
+    geo_j.add_to(mmap)
+    mmap.save('map.html')
 
 
 def mark_area_around_bomb(location, mmap):
@@ -65,6 +72,6 @@ if __name__ == '__main__':
     cities, building = read_data()
     mmap = show_map(cities, building)
     point = generate_random_gps(cities)
-    mark_area_around_bomb(point, mmap)
+    buffer_around_point(mmap, cities, point)
 
 
