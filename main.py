@@ -27,11 +27,16 @@ def show_map(gdf,building):
     geo_j = folium.GeoJson(data=geo_j, style_function=lambda x: {'fillColor': 'orange'})
     geo_j.add_to(mmap)
     mmap.save('map.html')  # TODO only for test purpose
-    pass
+    return mmap
 
 
-def generate_random_gps(boundaries):
-    return None
+def generate_random_gps(city):
+    polygon = city.envelope[0]
+    while True:
+        rand_x = random.uniform(polygon.bounds[0], polygon.bounds[2])
+        rand_y = random.uniform(polygon.bounds[1], polygon.bounds[3])
+        if polygon.contains(Point(rand_x, rand_y)):
+            return Point(rand_x, rand_y)
 
 
 def buffer_around_point(gdf):
@@ -41,18 +46,24 @@ def buffer_around_point(gdf):
 
 
 def mark_area_around_bomb(location, mmap):
-    folium.Circle(location=location,
+    folium.Marker(location=(location.y, location.x),
+                  popup="Qui è stato trovato un ordigno!",
+                  tooltip='BOMBA',
+                  icon=folium.Icon(color='red')).add_to(mmap)
+    folium.Circle(location=(location.y, location.x),
                   radius=1000,
                   popup="<b>Area ad alto rischio</b>",
                   tooltip="ZONA ROSSA",
                   color='red',
                   fill=True,
                   fill_color='#FF8989').add_to(mmap)
+    mmap.save('map.html')
 
 
 if __name__ == '__main__':
     cities, building = read_data()
-    show_map(cities, building)
-
+    mmap = show_map(cities, building)
+    point = generate_random_gps(cities)
+    mark_area_around_bomb(point, mmap)
 
 
