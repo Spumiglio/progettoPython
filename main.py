@@ -1,15 +1,10 @@
 
 import random
 from functools import partial
-
 import folium
 import geopandas as gpd
-import matplotlib
-from geopandas import sjoin
-from shapely.geometry import Point
 import pyproj
-from shapely.geometry import Point,Polygon
-import pandas as pd
+from shapely.geometry import Point, Polygon
 from shapely.ops import transform
 
 
@@ -24,11 +19,11 @@ def show_map(gdf, building):
     # build_j = gpd.GeoSeries(building['geometry']).simplify(tolerance=0.001)
     # b_j = build_j.to_json()
     # map2 = folium.GeoJson(b_j)
+    # map2.add_to(mmap)
 
     c = gdf.centroid
     mmap = folium.Map(location=[c.geometry.y, c.geometry.x], tiles='OpenStreetMap', zoom_start=12)
     folium.Marker([c.geometry.y, c.geometry.x], popup="<i>Popup di prova</i>", tooltip="Verona").add_to(mmap)
-    # map2.add_to(mmap)
     sim_geo = gpd.GeoSeries(gdf['geometry']).simplify(tolerance=0.0001)
     geo_j = sim_geo.to_json()
     geo_j = folium.GeoJson(data=geo_j, style_function=lambda x: {'fillColor': 'orange'})
