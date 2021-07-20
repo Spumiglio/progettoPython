@@ -3,6 +3,7 @@ import random
 import folium
 import geopandas as gpd
 import matplotlib
+from geopandas import sjoin
 from shapely.geometry import Point
 import pandas as pd
 
@@ -13,15 +14,15 @@ def read_data():
     return city, build
 
 
-def show_map(gdf,building):
-    build_j = gpd.GeoSeries(building['geometry']).simplify(tolerance=0.001)
-    b_j = build_j.to_json()
-    map2 = folium.GeoJson(b_j)
+def show_map(gdf, building):
+    # build_j = gpd.GeoSeries(building['geometry']).simplify(tolerance=0.001)
+    # b_j = build_j.to_json()
+    # map2 = folium.GeoJson(b_j)
 
     c = gdf.centroid
     mmap = folium.Map(location=[c.geometry.y, c.geometry.x], tiles='OpenStreetMap', zoom_start=12)
     folium.Marker([c.geometry.y, c.geometry.x], popup="<i>Popup di prova</i>", tooltip="Verona").add_to(mmap)
-    map2.add_to(mmap)
+    # map2.add_to(mmap)
     sim_geo = gpd.GeoSeries(gdf['geometry']).simplify(tolerance=0.0001)
     geo_j = sim_geo.to_json()
     geo_j = folium.GeoJson(data=geo_j, style_function=lambda x: {'fillColor': 'orange'})
@@ -41,14 +42,10 @@ def generate_random_gps(city):
 
 
 def buffer_around_point(mmap, gdf, point):
-    buffer = point.buffer(0.01, resolution=8, cap_style=1)
-    gdf['geometry'] = buffer
-
+    buffer = point.buffer(0.01, resolution=8)
+    myShapeTmp = gdf[gdf.geometry.within(buffer)]
     mark_area_around_bomb(point, mmap)
-
-    sim_geo = gpd.GeoSeries(gdf['geometry']).simplify(tolerance=0.0001)
-    geo_j = sim_geo.to_json()
-    geo_j = folium.GeoJson(data=geo_j, style_function=lambda x: {'fillColor': 'orange'})
+    geo_j = folium.GeoJson(data=myShapeTmp, style_function=lambda x: {'fillColor': 'black'})
     geo_j.add_to(mmap)
     mmap.save('map.html')
 
@@ -72,6 +69,6 @@ if __name__ == '__main__':
     cities, building = read_data()
     mmap = show_map(cities, building)
     point = generate_random_gps(cities)
-    buffer_around_point(mmap, cities, point)
+    buffer_around_point(mmap, building , point)
 
 
