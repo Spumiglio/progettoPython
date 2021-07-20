@@ -1,4 +1,4 @@
-
+import csv
 import random
 from functools import partial
 import folium
@@ -52,7 +52,8 @@ def buffer_around_point(mmap, gdf, point):
     buffer = Point(0, 0).buffer(1000)  # distance in metres
     buffer = Polygon(transform(project, buffer).exterior.coords[:])
 
-    buildings_in_area = gdf[gdf.geometry.within(buffer)] #TODO per zorzi: salvare su CSV questo dataframe
+    buildings_in_area = gdf[gdf.geometry.within(buffer)]
+    buildings_in_area.to_csv("buildings_in_area.csv", index=False)
     mark_area_around_bomb(point, mmap)
     geo_j = folium.GeoJson(data=buildings_in_area, style_function=lambda x: {'fillColor': 'black'})
     geo_j.add_to(mmap)
