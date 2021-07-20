@@ -1,11 +1,17 @@
 
 import random
+from functools import partial
+
 import folium
 import geopandas as gpd
 import matplotlib
 from geopandas import sjoin
 from shapely.geometry import Point
+import pyproj
+from shapely.geometry import Point,Polygon
 import pandas as pd
+from shapely.ops import transform
+
 
 def read_data():
     # import dello shapefile del Comune di Verona
@@ -42,7 +48,15 @@ def generate_random_gps(city):
 
 
 def buffer_around_point(mmap, gdf, point):
-    buffer = point.buffer(0.01, resolution=8)
+    proj_wgs84 = pyproj.Proj('+proj=longlat +datum=WGS84')
+    aeqd_proj = '+proj=aeqd +lat_0={lat} +lon_0={lon} +x_0=0 +y_0=0'
+    project = partial(
+        pyproj.transform,
+        pyproj.Proj(aeqd_proj.format(lat=point.y, lon=point.x)),
+        proj_wgs84)
+    buffer = Point(0, 0).buffer(1000)  # distance in metres
+    buffer = Polygon(transform(project, buffer).exterior.coords[:])
+
     myShapeTmp = gdf[gdf.geometry.within(buffer)]
     mark_area_around_bomb(point, mmap)
     geo_j = folium.GeoJson(data=myShapeTmp, style_function=lambda x: {'fillColor': 'black'})
