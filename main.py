@@ -25,15 +25,16 @@ def create_map(gdf):
     return mmap
 
 
-def generate_random_gps(city):
+def generate_random_point(city):
     square = city.envelope[0]
     geometry = city.geometry[0]
 
     while True:
+        # calcolo random di latitudine e longitudini
         rand_x = random.uniform(square.bounds[0], square.bounds[2])
         rand_y = random.uniform(square.bounds[1], square.bounds[3])
         if geometry.contains(Point(rand_x, rand_y)):
-            print("La bomba è stata trovata in posizione (" + str(rand_x) + ", " + str(rand_y) + ")")
+            print("Una bomba è stata trovata in posizione (" + str(rand_x) + ", " + str(rand_y) + ")")
             return Point(rand_x, rand_y)
 
 
@@ -46,10 +47,11 @@ def buffer_around_point(mmap, gdf, point):
         proj_wgs84)
     buffer = Point(0, 0).buffer(1000)  # distanza in metri
     buffer = Polygon(transform(project, buffer).exterior.coords[:])
+    print("Verranno evacuati gli edifici in un area di raggio di 1 km")
 
     buildings_in_area = gdf[gdf.geometry.within(buffer)]
     buildings_in_area.to_csv("buildings_in_area.csv", index=False)
-    mark_area_around_bomb(point, mmap)
+    mark_area_around_bomb(point, mmap) # segno l'area nella mappa
 
     print("Nell'area sono stati trovati " + str(len(buildings_in_area)) + " edifici da evacuare.")
 
@@ -84,7 +86,7 @@ def save_map(mmap, point):
 if __name__ == '__main__':
     verona, building = read_data()
     verona_map = create_map(verona)
-    bomb_point = generate_random_gps(verona)
+    bomb_point = generate_random_point(verona)
     buffer_around_point(verona_map, building, bomb_point)
 
     save_map(verona_map, bomb_point)
