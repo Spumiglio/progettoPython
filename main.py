@@ -23,7 +23,7 @@ def show_map(gdf):
     # map2.add_to(mmap)
 
     c = gdf.centroid
-    mmap = folium.Map(location=[c.geometry.y, c.geometry.x], tiles='OpenStreetMap', dragging= False, zoom_start=12)
+    mmap = folium.Map(location=[c.geometry.y, c.geometry.x], tiles='OpenStreetMap', zoom_start=12)
     # folium.Marker([c.geometry.y, c.geometry.x], popup="<i>Popup di prova</i>", tooltip="Verona").add_to(mmap)
     # map2.add_to(mmap)
     sim_geo = gpd.GeoSeries(gdf['geometry']).simplify(tolerance=0.0001)
