@@ -1,4 +1,3 @@
-import csv
 import random
 import folium
 import geopandas as gpd
@@ -16,16 +15,9 @@ def read_data():
     return city, build
 
 
-def show_map(gdf):
-    # build_j = gpd.GeoSeries(building['geometry']).simplify(tolerance=0.001)
-    # b_j = build_j.to_json()
-    # map2 = folium.GeoJson(b_j)
-    # map2.add_to(mmap)
-
+def create_map(gdf):
     c = gdf.centroid
     mmap = folium.Map(location=[c.geometry.y, c.geometry.x], tiles='OpenStreetMap', zoom_start=12)
-    # folium.Marker([c.geometry.y, c.geometry.x], popup="<i>Popup di prova</i>", tooltip="Verona").add_to(mmap)
-    # map2.add_to(mmap)
     sim_geo = gpd.GeoSeries(gdf['geometry']).simplify(tolerance=0.0001)
     geo_j = sim_geo.to_json()
     geo_j = folium.GeoJson(data=geo_j, style_function=lambda x: {'fillColor': 'orange'})
@@ -36,6 +28,7 @@ def show_map(gdf):
 def generate_random_gps(city):
     square = city.envelope[0]
     geometry = city.geometry[0]
+
     while True:
         rand_x = random.uniform(square.bounds[0], square.bounds[2])
         rand_y = random.uniform(square.bounds[1], square.bounds[3])
@@ -51,15 +44,18 @@ def buffer_around_point(mmap, gdf, point):
         pyproj.transform,
         pyproj.Proj(aeqd_proj.format(lat=point.y, lon=point.x)),
         proj_wgs84)
-    buffer = Point(0, 0).buffer(1000)  # distance in metres
+    buffer = Point(0, 0).buffer(1000)  # distanza in metri
     buffer = Polygon(transform(project, buffer).exterior.coords[:])
 
     buildings_in_area = gdf[gdf.geometry.within(buffer)]
     buildings_in_area.to_csv("buildings_in_area.csv", index=False)
     mark_area_around_bomb(point, mmap)
+
     print("Nell'area sono stati trovati " + str(len(buildings_in_area)) + " edifici da evacuare.")
+
     geo_j = folium.GeoJson(data=buildings_in_area, style_function=lambda x: {'fillColor': 'black', 'color': 'red'})
     geo_j.add_to(mmap)
+
 
 def mark_area_around_bomb(location, mmap):
     folium.Marker(location=(location.y, location.x),
@@ -80,17 +76,17 @@ def save_map(mmap, point):
     mmap.location = [point.y, point.x]
     mmap.options['zoom'] = 15
     mmap.options['zoom_control'] = False
-    mmap.options['scrollWheelZoom']=False
+    mmap.options['scrollWheelZoom'] = False
     mmap.options['dragging'] = False
     mmap.save("area_map.html")
 
 
 if __name__ == '__main__':
-    cities, building = read_data()
-    mmap = show_map(cities)
-    point = generate_random_gps(cities)
-    buffer_around_point(mmap, building, point)
+    verona, building = read_data()
+    verona_map = create_map(verona)
+    bomb_point = generate_random_gps(verona)
+    buffer_around_point(verona_map, building, bomb_point)
 
-    save_map(mmap, point)
+    save_map(verona_map, bomb_point)
 
 
