@@ -30,7 +30,6 @@ def show_map(gdf):
     geo_j = sim_geo.to_json()
     geo_j = folium.GeoJson(data=geo_j, style_function=lambda x: {'fillColor': 'orange'})
     geo_j.add_to(mmap)
-    mmap.save('map.html')  # TODO only for test purpose
     return mmap
 
 
@@ -61,8 +60,6 @@ def buffer_around_point(mmap, gdf, point):
     print("Nell'area sono stati trovati " + str(len(buildings_in_area)) + " edifici da evacuare.")
     geo_j = folium.GeoJson(data=buildings_in_area, style_function=lambda x: {'fillColor': 'black', 'color': 'red'})
     geo_j.add_to(mmap)
-    mmap.save('map.html')
-
 
 def mark_area_around_bomb(location, mmap):
     folium.Marker(location=(location.y, location.x),
@@ -76,13 +73,12 @@ def mark_area_around_bomb(location, mmap):
                   color='red',
                   fill=True,
                   fill_color='#FF8989').add_to(mmap)
-    mmap.save('map.html')
 
 
 def save_map(mmap, point):
     mmap.save('map.html')
     mmap.location = [point.y, point.x]
-    # map_larger = folium.Map(location=[point.y, point.x], zoom_start=18).add_to(figure)
+    mmap.options['zoom'] = 15
     mmap.save("area_map.html")
 
 
