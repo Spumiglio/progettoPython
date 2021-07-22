@@ -51,7 +51,7 @@ def buffer_around_point(mmap, gdf, point):
 
     buildings_in_area = gdf[gdf.geometry.within(buffer)]
     buildings_in_area.to_csv("buildings_in_area.csv", index=False)
-    mark_area_around_bomb(point, mmap) # segno l'area nella mappa
+    mark_area_around_bomb(point, mmap)  # segno l'area nella mappa
 
     print("Nell'area sono stati trovati " + str(len(buildings_in_area)) + " edifici da evacuare.")
 
